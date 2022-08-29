@@ -1,16 +1,48 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "PoolMath Automation",
   "pluginType": "platform",
   "singular": true,
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Example Dynamic Platform"
+      "controllers": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "displayName": { "type": "string", "title": "Display Name", "required": true, "placeholder": "Display Name" },
+            "address": { "type": "string", "title": "Inverter Address", "required": true, "placeholder": "192.168.1.118" },
+            "port": { "type": "number", "title": "Inverter Port", "required": false, "default": 80, "placeholder": "80" }
+          }
+        }
       }
     }
+  },
+  "layout": [
+    { "key": "controllers",
+      "type": "array",
+      "listItems": 1,
+      "items": [ {
+        "type": "div",
+        "displayFlex": true,
+        "flex-direction": "row",
+        "items": [
+          { "key": "controllers[].displayName", "flex": "4 4 200px",
+            "notitle": true, "placeholder": "Light"
+          },
+          { "key": "controllers[].address", "flex": "4 4 200px",
+            "notitle": true, "placeholder": "Address"
+          },
+          { "key": "controllers[].port", "flex": "2 2 50px",
+            "notitle": true, "placeholder": "Port"
+          }
+        ]
+      } ]
+    }
+  ],
+  "data": {
+    "controllers": [
+      { "displayName": "Fronius Inverter", "address": "192.168.2.118", "port": "80" }
+    ]
   }
 }
