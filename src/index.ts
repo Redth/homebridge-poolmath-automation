@@ -7,5 +7,5 @@ import { PoolMathAutomationControllerPlatform } from './platform';
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, PoolMathAutomationControllerPlatform);
+	api.registerPlatform(PLATFORM_NAME, PoolMathAutomationControllerPlatform);
 };

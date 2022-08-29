@@ -6,6 +6,9 @@ import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
 import { SwgAccessoryHandler } from './swgAccessoryHandler';
 import { Poolduino } from './Poolduino';
 
+export interface PoolMathAccessoryHandler {
+	updateCharacteristics(refresh: boolean | false) : Promise<void>;
+}
 
 /**
  * HomebridgePlatform
@@ -19,7 +22,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 	// this is used to track restored cached accessories
 	public readonly accessories: PlatformAccessory[] = [];
 
-	readonly accessoryHandlers: any[] = [];
+	readonly accessoryHandlers: PoolMathAccessoryHandler[] = [];
 	readonly controllers = new Map<string, Poolduino>();
 
 	readonly tag: string;

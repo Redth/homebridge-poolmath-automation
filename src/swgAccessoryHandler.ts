@@ -1,6 +1,6 @@
-import { Service, PlatformAccessory, CharacteristicValue, Nullable } from 'homebridge';
+import { Service, PlatformAccessory } from 'homebridge';
 
-import { PoolMathAutomationControllerPlatform } from './platform';
+import { PoolMathAccessoryHandler, PoolMathAutomationControllerPlatform } from './platform';
 
 //import { Mutex } from 'async-mutex';
 //import { ConsoleUtil } from './consoleUtil';
@@ -14,7 +14,7 @@ import { Poolduino } from './Poolduino';
 
 //const mutex = new Mutex();
 
-export class SwgAccessoryHandler {
+export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 
 	private swgService: Service;
 

@@ -14,7 +14,7 @@ import { Poolduino } from './Poolduino';
 
 //const mutex = new Mutex();
 
-export class PumpAccessoryHandler {
+export class PumpAccessoryHandler implements PumpAccessoryHandler {
 
 	private pumpProgram1Service: Service;
 	private pumpProgram2Service: Service;
