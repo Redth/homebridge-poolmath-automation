@@ -11,8 +11,8 @@
           "type": "object",
           "properties": {
             "displayName": { "type": "string", "title": "Display Name", "required": true, "placeholder": "Display Name" },
-            "address": { "type": "string", "title": "Inverter Address", "required": true, "placeholder": "192.168.1.118" },
-            "port": { "type": "number", "title": "Inverter Port", "required": false, "default": 80, "placeholder": "80" }
+            "address": { "type": "string", "title": "MeadowPool Address", "required": true, "placeholder": "192.168.2.121" },
+            "port": { "type": "number", "title": "MeadowPool Port", "required": false, "default": 80, "placeholder": "80" }
           }
         }
       }
@@ -28,7 +28,7 @@
         "flex-direction": "row",
         "items": [
           { "key": "controllers[].displayName", "flex": "4 4 200px",
-            "notitle": true, "placeholder": "Light"
+            "notitle": true, "placeholder": "MeadowPool"
           },
           { "key": "controllers[].address", "flex": "4 4 200px",
             "notitle": true, "placeholder": "Address"
@@ -42,7 +42,7 @@
   ],
   "data": {
     "controllers": [
-      { "displayName": "Fronius Inverter", "address": "192.168.2.118", "port": "80" }
+      { "displayName": "MeadowPool", "address": "192.168.2.121", "port": "80" }
     ]
   }
 }
