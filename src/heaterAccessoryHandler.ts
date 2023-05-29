@@ -4,7 +4,7 @@ import { PoolMathAccessoryHandler, PoolMathAutomationControllerPlatform } from '
 
 //import { Mutex } from 'async-mutex';
 //import { ConsoleUtil } from './consoleUtil';
-import { Poolduino } from './Poolduino';
+import { MeadowPool } from './MeadowPool';
 
 /**
  * Platform Accessory
@@ -24,15 +24,15 @@ export class HeaterAccessoryHandler implements PoolMathAccessoryHandler {
 	constructor(
 		private readonly platform: PoolMathAutomationControllerPlatform,
 		private readonly accessory: PlatformAccessory,
-		private readonly controller: Poolduino,
+		private readonly controller: MeadowPool,
 	) {
 		this.tag = `[PoolMath(${controller.address}:${controller.port})][${accessory.displayName}]`;
 
 		// set accessory information
 		this.accessory.getService(this.platform.Service.AccessoryInformation)!
 			.setCharacteristic(this.platform.Characteristic.Manufacturer, 'TroubleFreePool')
-			.setCharacteristic(this.platform.Characteristic.Model, 'Poolduino')
-			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-poolduino-1');
+			.setCharacteristic(this.platform.Characteristic.Model, 'MeadowPool')
+			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-MeadowPool-1');
 
 		// Heater Mode 1
 		const heaterState1ServiceName = 'Pool';
@@ -59,7 +59,7 @@ export class HeaterAccessoryHandler implements PoolMathAccessoryHandler {
 			this.platform.log.debug(`${this.tag} ${json}`);
 		}
 
-		const heater = this.controller.status.heaterState;
+		const heater = this.controller.status.Heater;
 		this.heaterState1Service.updateCharacteristic(this.platform.Characteristic.On, heater === 1);
 		this.heaterState2Service.updateCharacteristic(this.platform.Characteristic.On, heater === 2);
 	}
@@ -77,6 +77,6 @@ export class HeaterAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getHeaterState (heaterStateService: Service, heaterState: number) : Nullable<CharacteristicValue> {
-		return this.controller.status.heaterState === heaterState;
+		return this.controller.status.Heater === heaterState;
 	}
 }

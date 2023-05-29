@@ -4,7 +4,9 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { PumpAccessoryHandler } from './pumpAccessoryHandler';
 import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
 import { SwgAccessoryHandler } from './swgAccessoryHandler';
-import { Poolduino } from './Poolduino';
+import { MeadowPool } from './MeadowPool';
+import { TemperatureSensorAccessoryHandler } from './temperatureSensorAccessoryHandler';
+import { FilterPressureAccessoryHandler } from './filterPressureAccessoryHandler';
 
 export interface PoolMathAccessoryHandler {
 	updateCharacteristics(refresh: boolean | false) : Promise<void>;
@@ -23,7 +25,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 	public readonly accessories: PlatformAccessory[] = [];
 
 	readonly accessoryHandlers: PoolMathAccessoryHandler[] = [];
-	readonly controllers = new Map<string, Poolduino>();
+	readonly controllers = new Map<string, MeadowPool>();
 
 	readonly tag: string;
 
@@ -74,10 +76,10 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 
 			if (!this.controllers.has(controllerKey)) {
 				this.log.info(`${this.tag} Creating controller: ${controllerKey}`);
-				this.controllers.set(controllerKey, new Poolduino(controllerConfig.address, controllerConfig.port));
+				this.controllers.set(controllerKey, new MeadowPool(controllerConfig.address, controllerConfig.port));
 			}
 
-			const controller = this.controllers.get(controllerKey) as Poolduino;
+			const controller = this.controllers.get(controllerKey) as MeadowPool;
 			const newAccessories: PlatformAccessory<UnknownContext>[] = [];
 
 			const pumpUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/pump`);
@@ -109,6 +111,43 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				const heaterAccessoryHandler = new HeaterAccessoryHandler(this, newHeaterAccessory, controller);
 				this.accessoryHandlers.push(heaterAccessoryHandler);
 			}
+
+
+			const temperatureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/temperature`);
+			const temperatureAccessory = this.accessories.find(accessory => accessory.UUID === temperatureUuid);
+
+			if (temperatureAccessory) {
+				this.log.info(`${this.tag} Restored Temperature Sensor Accessory: ${temperatureAccessory.displayName} (${controllerKey})`);
+				const temperatureSensorAccessoryHandler = new TemperatureSensorAccessoryHandler(this, temperatureAccessory, controller);
+				this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
+			} else {
+				const newTemperatureSensorAccessory = new this.api.platformAccessory('Water Temperature', temperatureUuid);
+				this.log.info(
+					`${this.tag} Created Temperature Sensor Accessory: ${newTemperatureSensorAccessory.displayName} (${controllerKey})`);
+				newAccessories.push(newTemperatureSensorAccessory);
+				const temperatureSensorAccessoryHandler =
+					new TemperatureSensorAccessoryHandler(this, newTemperatureSensorAccessory, controller);
+				this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
+			}
+
+
+			const filterPressureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/filterpressure`);
+			const filterPressureAccessory = this.accessories.find(accessory => accessory.UUID === filterPressureUuid);
+
+			if (filterPressureAccessory) {
+				this.log.info(`${this.tag} Restored Filter Pressure Accessory: ${filterPressureAccessory.displayName} (${controllerKey})`);
+				const filterPressureAccessoryHandler = new FilterPressureAccessoryHandler(this, filterPressureAccessory, controller);
+				this.accessoryHandlers.push(filterPressureAccessoryHandler);
+			} else {
+				const newfilterPressureAccessory = new this.api.platformAccessory('Filter Pressure', filterPressureUuid);
+				this.log.info(
+					`${this.tag} Created Filter Pressure Accessory: ${newfilterPressureAccessory.displayName} (${controllerKey})`);
+				newAccessories.push(newfilterPressureAccessory);
+				const filterPressureAccessoryHandler =
+					new FilterPressureAccessoryHandler(this, newfilterPressureAccessory, controller);
+				this.accessoryHandlers.push(filterPressureAccessoryHandler);
+			}
+
 
 			const swgUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/swg`);
 			const swgAccessory = this.accessories.find(accessory => accessory.UUID === swgUuid);

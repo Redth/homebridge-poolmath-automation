@@ -4,7 +4,7 @@ import { PoolMathAccessoryHandler, PoolMathAutomationControllerPlatform } from '
 
 //import { Mutex } from 'async-mutex';
 //import { ConsoleUtil } from './consoleUtil';
-import { Poolduino } from './Poolduino';
+import { MeadowPool } from './MeadowPool';
 
 /**
  * Platform Accessory
@@ -23,15 +23,15 @@ export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 	constructor(
 		private readonly platform: PoolMathAutomationControllerPlatform,
 		private readonly accessory: PlatformAccessory,
-		private readonly controller: Poolduino,
+		private readonly controller: MeadowPool,
 	) {
 		this.tag = `[PoolMath(${controller.address}:${controller.port})][${accessory.displayName}]`;
 
 		// set accessory information
 		this.accessory.getService(this.platform.Service.AccessoryInformation)!
 			.setCharacteristic(this.platform.Characteristic.Manufacturer, 'TroubleFreePool')
-			.setCharacteristic(this.platform.Characteristic.Model, 'Poolduino')
-			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-poolduino-1');
+			.setCharacteristic(this.platform.Characteristic.Model, 'MeadowPool')
+			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-MeadowPool-1');
 
 		const swgServiceName = 'SWG';
 		this.swgService = this.accessory.getService(swgServiceName)
@@ -41,7 +41,7 @@ export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 				const on = <boolean>v.valueOf();
 
 				let toSet = -1;
-				if (on && this.controller.status.swgPercent <= 0) {
+				if (on && this.controller.status.SwgPercent <= 0) {
 					toSet = (this.swgService.getCharacteristic(this.platform.Characteristic.Brightness)?.value as number) ?? 50;
 				} else if (!on) {
 					toSet = 0;
@@ -55,7 +55,7 @@ export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 					this.swgService.updateCharacteristic(this.platform.Characteristic.On, v);
 				}
 			})
-			.onGet(() => this.controller.status.swgPercent > 0);
+			.onGet(() => this.controller.status.SwgPercent > 0);
 		this.swgService.getCharacteristic(this.platform.Characteristic.Brightness)
 			.onSet(v => {
 				const toSet = (v.valueOf() as number) ?? 50;
@@ -63,7 +63,7 @@ export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 				this.controller.setSwgPercent(toSet)
 					.then(() => this.swgService.updateCharacteristic(this.platform.Characteristic.Brightness, toSet));
 			})
-			.onGet(() => this.controller.status.swgPercent);
+			.onGet(() => this.controller.status.SwgPercent);
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
@@ -74,7 +74,7 @@ export class SwgAccessoryHandler implements PoolMathAccessoryHandler {
 			this.platform.log.debug(`${this.tag} ${json}`);
 		}
 
-		const swgPercent = this.controller.status.swgPercent;
+		const swgPercent = this.controller.status.SwgPercent;
 		this.swgService.updateCharacteristic(this.platform.Characteristic.Brightness, Math.max(0, swgPercent));
 		this.swgService.updateCharacteristic(this.platform.Characteristic.On, swgPercent > 0);
 	}

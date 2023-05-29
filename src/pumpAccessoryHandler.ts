@@ -4,7 +4,7 @@ import { PoolMathAutomationControllerPlatform } from './platform';
 
 //import { Mutex } from 'async-mutex';
 //import { ConsoleUtil } from './consoleUtil';
-import { Poolduino } from './Poolduino';
+import { MeadowPool } from './MeadowPool';
 
 /**
  * Platform Accessory
@@ -25,7 +25,7 @@ export class PumpAccessoryHandler implements PumpAccessoryHandler {
 	constructor(
 		private readonly platform: PoolMathAutomationControllerPlatform,
 		private readonly accessory: PlatformAccessory,
-		private readonly controller: Poolduino,
+		private readonly controller: MeadowPool,
 	) {
 
 		this.tag = `[PoolMath(${controller.address}:${controller.port})][${accessory.displayName}]`;
@@ -33,8 +33,8 @@ export class PumpAccessoryHandler implements PumpAccessoryHandler {
 		// set accessory information
 		this.accessory.getService(this.platform.Service.AccessoryInformation)!
 			.setCharacteristic(this.platform.Characteristic.Manufacturer, 'TroubleFreePool')
-			.setCharacteristic(this.platform.Characteristic.Model, 'Poolduino')
-			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-poolduino-1');
+			.setCharacteristic(this.platform.Characteristic.Model, 'MeadowPool')
+			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-MeadowPool-1');
 
 		// Pump 1
 		const pumpProgram1ServiceName = 'High';
@@ -72,7 +72,7 @@ export class PumpAccessoryHandler implements PumpAccessoryHandler {
 			this.platform.log.debug(`${this.tag} ${json}`);
 		}
 
-		const pump = this.controller.status.pumpProgram;
+		const pump = this.controller.status.Pump;
 		this.pumpProgram1Service.updateCharacteristic(this.platform.Characteristic.On, pump === 1);
 		this.pumpProgram2Service.updateCharacteristic(this.platform.Characteristic.On, pump === 2);
 		this.pumpProgram3Service.updateCharacteristic(this.platform.Characteristic.On, pump === 3);
@@ -90,6 +90,6 @@ export class PumpAccessoryHandler implements PumpAccessoryHandler {
 	}
 
 	getPumpProgram (pumpProgramService: Service, pumpProgram: number) : Nullable<CharacteristicValue> {
-		return this.controller.status.pumpProgram === pumpProgram;
+		return this.controller.status.Pump === pumpProgram;
 	}
 }
