@@ -4,7 +4,7 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { PumpAccessoryHandler } from './pumpAccessoryHandler';
 import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
 import { SwgAccessoryHandler } from './swgAccessoryHandler';
-import { MeadowPool } from './MeadowPool';
+import { MeadowPool, MeadowPoolStatus } from './MeadowPool';
 import { TemperatureSensorAccessoryHandler } from './temperatureSensorAccessoryHandler';
 import { FilterPressureAccessoryHandler } from './filterPressureAccessoryHandler';
 
@@ -172,9 +172,10 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, newAccessories);
 			}
 
-			controller.addListener('statusUpdated', (status) => {
+			controller.addListener('statusUpdated', (status: MeadowPoolStatus) => {
 				const json = JSON.stringify(status);
-				this.log.info(`${this.tag} Controller status updated`);
+				// eslint-disable-next-line max-len
+				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), Heater=${status.Heater}, Pump=${status.Pump}`);
 				this.log.debug(`${this.tag} ${json}`);
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);
