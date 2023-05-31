@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { debounce } from 'ts-debounce';
 
 export class MeadowPoolStatus {
 
@@ -33,47 +34,82 @@ export class MeadowPool {
 
 	public status: MeadowPoolStatus;
 
-	async updateStatus() {
-		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/status');
 
-		this.status = resp.data;
+	setStatus(status:MeadowPoolStatus) {
+		// if they're already equal, no-op
+		if (JSON.stringify(this.status) === JSON.stringify(status)) {
+			return;
+		}
+
+		this.status = status;
+
 	}
 
-	async setPumpProgram(pumpProgram: number) {
+	readonly debouncedUpdateStatus = debounce(this.updateStatusInternal, 2000);
+	async updateStatus() {
+		return await this.debouncedUpdateStatus();
+	}
+
+	async updateStatusInternal() {
+		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/status');
+
+		this.setStatus(resp.data);
+	}
+
+	readonly debouncedSetPumpProgramInternal = debounce(this.setPumpProgramInternal, 1200);
+	public async setPumpProgram(pumpProgram: number) {
+		return await this.debouncedSetPumpProgramInternal(pumpProgram);
+	}
+
+	async setPumpProgramInternal(pumpProgram: number ) {
 		const previousPumpProgram = this.status.Pump;
 
 		this.status.Pump = pumpProgram;
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/pump/' + pumpProgram);
-			this.status = resp.data;
+			this.setStatus(resp.data);
 		} catch (ex) {
 			this.status.Pump = previousPumpProgram;
+			this.setStatus(this.status);
 			throw ex;
 		}
 	}
 
-	async setHeaterState(heaterState: number) {
+	readonly debouncedSetHeaterStateInternal = debounce(this.setHeaterStateInternal, 1200);
+	public async setHeaterState(heaterState: number) {
+		return await this.debouncedSetHeaterStateInternal(heaterState);
+	}
+
+	async setHeaterStateInternal(heaterState: number) {
 		const previousHeaterState = this.status.Heater;
 
 		this.status.Heater = heaterState;
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterState);
-			this.status = resp.data;
+			this.setStatus(resp.data);
 		} catch (ex) {
 			this.status.Heater = previousHeaterState;
+			this.setStatus(this.status);
 			throw ex;
 		}
 	}
 
-	async setSwgPercent(swgPercent: number) {
+	readonly debouncedSetSwgPercentInternal = debounce(this.setSwgPercentInternal, 1200);
+
+	public async setSwgPercent(swgPercent: number) {
+		return await this.debouncedSetSwgPercentInternal(swgPercent);
+	}
+
+	async setSwgPercentInternal(swgPercent: number) {
 		const previousSwgPercent = this.status.SwgPercent;
 
 		this.status.SwgPercent = swgPercent;
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/swg/' + swgPercent);
-			this.status = resp.data;
+			this.setStatus(resp.data);
 		} catch (ex) {
 			this.status.SwgPercent = previousSwgPercent;
+			this.setStatus(this.status);
 			throw ex;
 		}
 	}
