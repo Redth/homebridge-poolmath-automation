@@ -39,6 +39,7 @@ export class TemperatureSensorAccessoryHandler implements PoolMathAccessoryHandl
 			|| this.accessory.addService(this.platform.Service.TemperatureSensor, temperatureSensorServiceName, 'TemperatureSensorPool');
 		this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
 			.onGet(() => this.getTemperature());
+		this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.StatusActive).onGet(() => true);
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
@@ -51,6 +52,7 @@ export class TemperatureSensorAccessoryHandler implements PoolMathAccessoryHandl
 
 		const temp = this.controller.status.Temp;
 		this.temperatureSensorService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, temp);
+		this.temperatureSensorService.updateCharacteristic(this.platform.Characteristic.StatusActive, true);
 	}
 
 	getTemperature () : Nullable<CharacteristicValue> {
