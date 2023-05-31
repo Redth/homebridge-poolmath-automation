@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue, Nullable } from 'homebridge';
 
-import { PoolMathAutomationControllerPlatform } from './platform';
+import { PoolMathAccessoryHandler, PoolMathAutomationControllerPlatform } from './platform';
 
 //import { Mutex } from 'async-mutex';
 //import { ConsoleUtil } from './consoleUtil';
@@ -14,7 +14,7 @@ import { MeadowPool } from './MeadowPool';
 
 //const mutex = new Mutex();
 
-export class PumpAccessoryHandler implements PumpAccessoryHandler {
+export class PumpAccessoryHandler implements PoolMathAccessoryHandler {
 
 	private pumpProgram1Service: Service;
 	private pumpProgram2Service: Service;
