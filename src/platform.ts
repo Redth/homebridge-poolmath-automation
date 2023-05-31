@@ -165,18 +165,20 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			}
 
 			// Do the initial state updates
-			controller.updateStatus().then(() => {
-				const json = JSON.stringify(controller.status);
+			controller.updateStatus();
+
+			if (newAccessories.length > 0) {
+				this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, newAccessories);
+			}
+
+			controller.addListener('statusUpdated', (status) => {
+				const json = JSON.stringify(status);
 				this.log.info(`${this.tag} Controller status updated`);
 				this.log.debug(`${this.tag} ${json}`);
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);
 				});
 			});
-
-			if (newAccessories.length > 0) {
-				this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, newAccessories);
-			}
 
 			this.log.info(`${this.tag} Initialized.`);
 		}

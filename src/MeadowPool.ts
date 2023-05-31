@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { debounce } from 'ts-debounce';
+import { EventEmitter } from 'events';
 
 export class MeadowPoolStatus {
 
@@ -20,10 +21,12 @@ export class MeadowPoolStatus {
 	}
 }
 
-export class MeadowPool {
+export class MeadowPool extends EventEmitter {
 	constructor(
 		public readonly address: string,
 		public readonly port: number) {
+
+		super();
 
 		this.baseUrl = 'http://' + this.address + ':' + this.port;
 
@@ -43,6 +46,7 @@ export class MeadowPool {
 
 		this.status = status;
 
+		this.emit('statusUpdated', this.status);
 	}
 
 	readonly debouncedUpdateStatus = debounce(this.updateStatusInternal, 2000);
