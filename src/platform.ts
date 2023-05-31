@@ -76,7 +76,8 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 
 			if (!this.controllers.has(controllerKey)) {
 				this.log.info(`${this.tag} Creating controller: ${controllerKey}`);
-				this.controllers.set(controllerKey, new MeadowPool(controllerConfig.address, controllerConfig.port));
+				this.controllers.set(controllerKey,
+					new MeadowPool(controllerConfig.address, controllerConfig.port, controllerConfig.updateIntervalMs ?? 60000));
 			}
 
 			const controller = this.controllers.get(controllerKey) as MeadowPool;

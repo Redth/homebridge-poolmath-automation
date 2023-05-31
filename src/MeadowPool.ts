@@ -24,13 +24,19 @@ export class MeadowPoolStatus {
 export class MeadowPool extends EventEmitter {
 	constructor(
 		public readonly address: string,
-		public readonly port: number) {
+		public readonly port: number,
+		public readonly updateIntervalMs: number) {
 
 		super();
 
 		this.baseUrl = 'http://' + this.address + ':' + this.port;
 
 		this.status = new MeadowPoolStatus(address, port, 0, 0, 0, 0, 0, 0, 0, 100, '');
+
+		// Update from the endpoint regularly
+		setInterval(async () => {
+			await this.updateStatus();
+		}, updateIntervalMs);
 	}
 
 	readonly baseUrl: string;

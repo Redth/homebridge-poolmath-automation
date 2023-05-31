@@ -12,7 +12,8 @@
           "properties": {
             "displayName": { "type": "string", "title": "Display Name", "required": true, "placeholder": "Display Name" },
             "address": { "type": "string", "title": "MeadowPool Address", "required": true, "placeholder": "192.168.2.121" },
-            "port": { "type": "number", "title": "MeadowPool Port", "required": false, "default": 80, "placeholder": "80" }
+            "port": { "type": "number", "title": "MeadowPool Port", "required": false, "default": 80, "placeholder": "80" },
+            "updateIntervalMs": { "type": "number", "title": "Update Interval (ms)", "required": false, "default": 60000, "placeholder": "60000" }
           }
         }
       }
@@ -42,7 +43,7 @@
   ],
   "data": {
     "controllers": [
-      { "displayName": "MeadowPool", "address": "192.168.2.121", "port": "80" }
+      { "displayName": "MeadowPool", "address": "192.168.2.121", "port": "80", "updateIntervalMs": 60000 }
     ]
   }
 }
