@@ -36,8 +36,8 @@ export class FilterPressureAccessoryHandler implements PoolMathAccessoryHandler 
 		// Temp sensor
 		const filterPressureServiceName = 'Filter Pressure';
 		this.filterPressureService = this.accessory.getService(filterPressureServiceName)
-			|| this.accessory.addService(this.platform.Service.FilterMaintenance, filterPressureServiceName, 'FilterPressurePool');
-		this.filterPressureService.getCharacteristic(this.platform.Characteristic.FilterLifeLevel)
+			|| this.accessory.addService(this.platform.Service.LightSensor, filterPressureServiceName, 'FilterPressurePool');
+		this.filterPressureService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
 			.onGet(() => this.getFilterPressure());
 	}
 
@@ -50,7 +50,7 @@ export class FilterPressureAccessoryHandler implements PoolMathAccessoryHandler 
 		}
 
 		const pressure = this.controller.status.Pressure;
-		this.filterPressureService.updateCharacteristic(this.platform.Characteristic.FilterLifeLevel, pressure);
+		this.filterPressureService.updateCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel, pressure);
 	}
 
 	getFilterPressure () : Nullable<CharacteristicValue> {
