@@ -132,7 +132,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			}
 
 
-			const filterPressureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/filterpressure`);
+			const filterPressureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/filterpressuresensor`);
 			const filterPressureAccessory = this.accessories.find(accessory => accessory.UUID === filterPressureUuid);
 
 			if (filterPressureAccessory) {
