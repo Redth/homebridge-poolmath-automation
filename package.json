@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "HomeBridge PoolMath Automation",
   "name": "homebridge-poolmath-automation",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "HomeBridge Plugin for PoolMath Automation Controller",
   "license": "MIT",
   "repository": {
