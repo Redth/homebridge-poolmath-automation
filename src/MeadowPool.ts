@@ -2,9 +2,11 @@ import axios from 'axios';
 import { debounce } from 'ts-debounce';
 import { EventEmitter } from 'events';
 import { MeadowPoolStatus } from './MeadowPoolStatus';
+import { Logger } from 'homebridge';
 
 export class MeadowPool extends EventEmitter {
 	constructor(
+		public readonly log: Logger,
 		public readonly address: string,
 		public readonly port: number,
 		public readonly updateIntervalMs: number) {
@@ -43,9 +45,12 @@ export class MeadowPool extends EventEmitter {
 	}
 
 	async updateStatusInternal() {
-		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/status');
-
-		this.setStatus(resp.data);
+		try {
+			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/status');
+			this.setStatus(resp.data);
+		} catch (e) {
+			this.log.error('Failed updateStatus: ' + e);
+		}
 	}
 
 	readonly debouncedSetPumpProgramInternal = debounce(this.setPumpProgramInternal, 1200);
@@ -60,10 +65,10 @@ export class MeadowPool extends EventEmitter {
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/pump/' + pumpProgram);
 			this.setStatus(resp.data);
-		} catch (ex) {
+		} catch (e) {
 			this.status.Pump = previousPumpProgram;
 			this.setStatus(this.status);
-			throw ex;
+			this.log.error('Failed setPumpProgram: ' + e);
 		}
 	}
 
@@ -80,10 +85,10 @@ export class MeadowPool extends EventEmitter {
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/swg/' + swgPercent);
 			this.setStatus(resp.data);
-		} catch (ex) {
+		} catch (e) {
 			this.status.SwgPercent = previousSwgPercent;
 			this.setStatus(this.status);
-			throw ex;
+			this.log.error('Failed setSwgPercent: ' + e);
 		}
 	}
 
@@ -102,10 +107,10 @@ export class MeadowPool extends EventEmitter {
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/thermostat/' + targetValue);
 			this.setStatus(resp.data);
-		} catch (ex) {
+		} catch (e) {
 			this.status.ThermostatTarget = previousThermostatTarget;
 			this.setStatus(this.status);
-			throw ex;
+			this.log.error('Failed setThermostatTarget: ' + e);
 		}
 	}
 
@@ -121,10 +126,10 @@ export class MeadowPool extends EventEmitter {
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterOn);
 			this.setStatus(resp.data);
-		} catch (ex) {
+		} catch (e) {
 			this.status.HeaterOn = previousHeaterState;
 			this.setStatus(this.status);
-			throw ex;
+			this.log.error('Failed setHeaterOn: ' + e);
 		}
 	}
 }
