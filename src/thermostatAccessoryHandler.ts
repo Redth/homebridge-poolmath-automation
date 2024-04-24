@@ -121,7 +121,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	formatTemperature (value: number, min: number, max: number) : number {
-		const clamped = Math.min(min, Math.max(max, value));
+		const clamped = Math.min(max, Math.max(min, value));
 		return Math.round(clamped * 10) / 10;
 	}
 }
