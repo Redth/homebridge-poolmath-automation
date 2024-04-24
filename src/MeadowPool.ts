@@ -67,25 +67,6 @@ export class MeadowPool extends EventEmitter {
 		}
 	}
 
-	// readonly debouncedSetHeaterStateInternal = debounce(this.setHeaterStateInternal, 1200);
-	// public async setHeaterState(heaterState: number) {
-	// 	return await this.debouncedSetHeaterStateInternal(heaterState);
-	// }
-
-	// async setHeaterStateInternal(heaterState: number) {
-	// 	const previousHeaterState = this.status.Heater;
-
-	// 	this.status.Heater = heaterState;
-	// 	try {
-	// 		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterState);
-	// 		this.setStatus(resp.data);
-	// 	} catch (ex) {
-	// 		this.status.Heater = previousHeaterState;
-	// 		this.setStatus(this.status);
-	// 		throw ex;
-	// 	}
-	// }
-
 	readonly debouncedSetSwgPercentInternal = debounce(this.setSwgPercentInternal, 1200);
 
 	public async setSwgPercent(swgPercent: number) {

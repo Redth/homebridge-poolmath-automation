@@ -2,11 +2,9 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { PumpAccessoryHandler } from './pumpAccessoryHandler';
-// import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
 import { SwgAccessoryHandler } from './swgAccessoryHandler';
 import { MeadowPool } from './MeadowPool';
 import { MeadowPoolStatus } from './MeadowPoolStatus';
-import { TemperatureSensorAccessoryHandler } from './temperatureSensorAccessoryHandler';
 import { FilterPressureAccessoryHandler } from './filterPressureAccessoryHandler';
 import { ThermostatAccessoryHandler } from './thermostatAccessoryHandler';
 
@@ -100,40 +98,6 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				this.accessoryHandlers.push(pumpAccessoryHandler);
 			}
 
-			// const heaterUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/heater`);
-			// const heaterAccessory = this.accessories.find(accessory => accessory.UUID === heaterUuid);
-
-			// if (heaterAccessory) {
-			// 	this.log.info(`${this.tag} Restored Heater Accessory: ${heaterAccessory.displayName} (${controllerKey})`);
-			// 	const heaterAccessoryHandler = new HeaterAccessoryHandler(this, heaterAccessory, controller);
-			// 	this.accessoryHandlers.push(heaterAccessoryHandler);
-			// } else {
-			// 	const newHeaterAccessory = new this.api.platformAccessory('Heater', heaterUuid);
-			// 	this.log.info(`${this.tag} Created Heater Accessory: ${newHeaterAccessory.displayName} (${controllerKey})`);
-			// 	newAccessories.push(newHeaterAccessory);
-			// 	const heaterAccessoryHandler = new HeaterAccessoryHandler(this, newHeaterAccessory, controller);
-			// 	this.accessoryHandlers.push(heaterAccessoryHandler);
-			// }
-
-
-			// const temperatureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/temperature`);
-			// const temperatureAccessory = this.accessories.find(accessory => accessory.UUID === temperatureUuid);
-
-			// if (temperatureAccessory) {
-			// 	this.log.info(`${this.tag} Restored Temperature Sensor Accessory: ${temperatureAccessory.displayName} (${controllerKey})`);
-			// 	const temperatureSensorAccessoryHandler = new TemperatureSensorAccessoryHandler(this, temperatureAccessory, controller);
-			// 	this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
-			// } else {
-			// 	const newTemperatureSensorAccessory = new this.api.platformAccessory('Water Temperature', temperatureUuid);
-			// 	this.log.info(
-			// 		`${this.tag} Created Temperature Sensor Accessory: ${newTemperatureSensorAccessory.displayName} (${controllerKey})`);
-			// 	newAccessories.push(newTemperatureSensorAccessory);
-			// 	const temperatureSensorAccessoryHandler =
-			// 		new TemperatureSensorAccessoryHandler(this, newTemperatureSensorAccessory, controller);
-			// 	this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
-			// }
-
-
 			const filterPressureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/filterpressuresensor`);
 			const filterPressureAccessory = this.accessories.find(accessory => accessory.UUID === filterPressureUuid);
 
@@ -192,7 +156,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			controller.addListener('statusUpdated', (status: MeadowPoolStatus) => {
 				const json = JSON.stringify(status);
 				// eslint-disable-next-line max-len
-				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), HeaterOn=${status.HeaterOn}, Pump=${status.Pump}`);
+				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), HeaterOn=${status.HeaterOn}, Pump=${status.Pump}, TargetTemp=${status.ThermostatTarget}`);
 				this.log.debug(`${this.tag} ${json}`);
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);
