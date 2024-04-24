@@ -8,7 +8,7 @@ export class MeadowPoolStatus {
 		public readonly address: string,
 		public readonly port: number,
 
-		public Heater: number,
+		public HeaterOn: boolean,
 		public Pump: number,
 		public SwgPercent: number,
 		public ThermostatTarget: number,
@@ -32,7 +32,7 @@ export class MeadowPool extends EventEmitter {
 
 		this.baseUrl = 'http://' + this.address + ':' + this.port;
 
-		this.status = new MeadowPoolStatus(address, port, 0, 0, 0, 0, 0, 0, 0, 0, 100, '');
+		this.status = new MeadowPoolStatus(address, port, false, 0, 0, 0, 0, 0, 0, 0, 100, '');
 
 		// Update from the endpoint regularly
 		setInterval(async () => {
@@ -86,24 +86,24 @@ export class MeadowPool extends EventEmitter {
 		}
 	}
 
-	readonly debouncedSetHeaterStateInternal = debounce(this.setHeaterStateInternal, 1200);
-	public async setHeaterState(heaterState: number) {
-		return await this.debouncedSetHeaterStateInternal(heaterState);
-	}
+	// readonly debouncedSetHeaterStateInternal = debounce(this.setHeaterStateInternal, 1200);
+	// public async setHeaterState(heaterState: number) {
+	// 	return await this.debouncedSetHeaterStateInternal(heaterState);
+	// }
 
-	async setHeaterStateInternal(heaterState: number) {
-		const previousHeaterState = this.status.Heater;
+	// async setHeaterStateInternal(heaterState: number) {
+	// 	const previousHeaterState = this.status.Heater;
 
-		this.status.Heater = heaterState;
-		try {
-			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterState);
-			this.setStatus(resp.data);
-		} catch (ex) {
-			this.status.Heater = previousHeaterState;
-			this.setStatus(this.status);
-			throw ex;
-		}
-	}
+	// 	this.status.Heater = heaterState;
+	// 	try {
+	// 		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterState);
+	// 		this.setStatus(resp.data);
+	// 	} catch (ex) {
+	// 		this.status.Heater = previousHeaterState;
+	// 		this.setStatus(this.status);
+	// 		throw ex;
+	// 	}
+	// }
 
 	readonly debouncedSetSwgPercentInternal = debounce(this.setSwgPercentInternal, 1200);
 
@@ -134,14 +134,33 @@ export class MeadowPool extends EventEmitter {
 	}
 
 	async setThermostatTargetInternal(targetValue: number) {
-		const previousSwgPercent = this.status.ThermostatTarget;
+		const previousThermostatTarget = this.status.ThermostatTarget;
 
 		this.status.ThermostatTarget = targetValue;
 		try {
 			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/thermostat/' + targetValue);
 			this.setStatus(resp.data);
 		} catch (ex) {
-			this.status.SwgPercent = previousSwgPercent;
+			this.status.ThermostatTarget = previousThermostatTarget;
+			this.setStatus(this.status);
+			throw ex;
+		}
+	}
+
+	readonly debouncedSetHeaterOnInternal = debounce(this.setHeaterOnInternal, 1200);
+	public async setHeaterOn(heaterOn: boolean) {
+		return await this.debouncedSetHeaterOnInternal(heaterOn);
+	}
+
+	async setHeaterOnInternal(heaterOn: boolean) {
+		const previousHeaterState = this.status.HeaterOn;
+
+		this.status.HeaterOn = heaterOn;
+		try {
+			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterOn);
+			this.setStatus(resp.data);
+		} catch (ex) {
+			this.status.HeaterOn = previousHeaterState;
 			this.setStatus(this.status);
 			throw ex;
 		}

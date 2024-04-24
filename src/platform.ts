@@ -2,7 +2,7 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { PumpAccessoryHandler } from './pumpAccessoryHandler';
-import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
+// import { HeaterAccessoryHandler } from './heaterAccessoryHandler';
 import { SwgAccessoryHandler } from './swgAccessoryHandler';
 import { MeadowPool, MeadowPoolStatus } from './MeadowPool';
 import { TemperatureSensorAccessoryHandler } from './temperatureSensorAccessoryHandler';
@@ -99,20 +99,20 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				this.accessoryHandlers.push(pumpAccessoryHandler);
 			}
 
-			const heaterUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/heater`);
-			const heaterAccessory = this.accessories.find(accessory => accessory.UUID === heaterUuid);
+			// const heaterUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/heater`);
+			// const heaterAccessory = this.accessories.find(accessory => accessory.UUID === heaterUuid);
 
-			if (heaterAccessory) {
-				this.log.info(`${this.tag} Restored Heater Accessory: ${heaterAccessory.displayName} (${controllerKey})`);
-				const heaterAccessoryHandler = new HeaterAccessoryHandler(this, heaterAccessory, controller);
-				this.accessoryHandlers.push(heaterAccessoryHandler);
-			} else {
-				const newHeaterAccessory = new this.api.platformAccessory('Heater', heaterUuid);
-				this.log.info(`${this.tag} Created Heater Accessory: ${newHeaterAccessory.displayName} (${controllerKey})`);
-				newAccessories.push(newHeaterAccessory);
-				const heaterAccessoryHandler = new HeaterAccessoryHandler(this, newHeaterAccessory, controller);
-				this.accessoryHandlers.push(heaterAccessoryHandler);
-			}
+			// if (heaterAccessory) {
+			// 	this.log.info(`${this.tag} Restored Heater Accessory: ${heaterAccessory.displayName} (${controllerKey})`);
+			// 	const heaterAccessoryHandler = new HeaterAccessoryHandler(this, heaterAccessory, controller);
+			// 	this.accessoryHandlers.push(heaterAccessoryHandler);
+			// } else {
+			// 	const newHeaterAccessory = new this.api.platformAccessory('Heater', heaterUuid);
+			// 	this.log.info(`${this.tag} Created Heater Accessory: ${newHeaterAccessory.displayName} (${controllerKey})`);
+			// 	newAccessories.push(newHeaterAccessory);
+			// 	const heaterAccessoryHandler = new HeaterAccessoryHandler(this, newHeaterAccessory, controller);
+			// 	this.accessoryHandlers.push(heaterAccessoryHandler);
+			// }
 
 
 			const temperatureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/temperature`);
@@ -191,7 +191,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			controller.addListener('statusUpdated', (status: MeadowPoolStatus) => {
 				const json = JSON.stringify(status);
 				// eslint-disable-next-line max-len
-				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), Heater=${status.Heater}, Pump=${status.Pump}`);
+				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), HeaterOn=${status.HeaterOn}, Pump=${status.Pump}`);
 				this.log.debug(`${this.tag} ${json}`);
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);

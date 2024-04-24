@@ -59,9 +59,8 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		// Target Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
-			.onGet(() => this.platform.Characteristic.TargetHeatingCoolingState.HEAT)
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			.onSet(_ => this.updateCharacteristics(false));
+			.onGet(() => this.getThermostatHeatingCoolingState())
+			.onSet(v => this.setThermostatTargetHeatingCoolingState(v));
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
@@ -96,6 +95,17 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			.then(() => this.updateCharacteristics(false));
 	}
 
+	setThermostatTargetHeatingCoolingState (value: CharacteristicValue) {
+
+		const targetStateValue = <number>value.valueOf();
+		const isOn = targetStateValue === this.platform.Characteristic.TargetHeatingCoolingState.HEAT
+			|| targetStateValue === this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+
+		this.platform.log.info(`${this.tag} SET heaterOn=${isOn}`);
+		this.controller.setHeaterOn(isOn)
+			.then(() => this.updateCharacteristics(false));
+	}
+
 	getThermostatTarget () : Nullable<CharacteristicValue> {
 		return this.formatTemperature(this.controller.status.ThermostatTarget, 10, 38);
 	}
@@ -105,9 +115,9 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getThermostatHeatingCoolingState () : Nullable<CharacteristicValue> {
-		return this.controller.status.Heater <= 0
-			? this.platform.Characteristic.CurrentHeatingCoolingState.OFF
-			: this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
+		return this.controller.status.HeaterOn ?
+			this.platform.Characteristic.CurrentHeatingCoolingState.HEAT
+			: this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
 	}
 
 	formatTemperature (value: number, min: number, max: number) : number {
