@@ -7,6 +7,7 @@ import { SwgAccessoryHandler } from './swgAccessoryHandler';
 import { MeadowPool, MeadowPoolStatus } from './MeadowPool';
 import { TemperatureSensorAccessoryHandler } from './temperatureSensorAccessoryHandler';
 import { FilterPressureAccessoryHandler } from './filterPressureAccessoryHandler';
+import { ThermostatAccessoryHandler } from './thermostatAccessoryHandler';
 
 export interface PoolMathAccessoryHandler {
 	updateCharacteristics(refresh: boolean | false) : Promise<void>;
@@ -163,6 +164,21 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				newAccessories.push(newSwgAccessory);
 				const swgAccessoryHandler = new SwgAccessoryHandler(this, newSwgAccessory, controller);
 				this.accessoryHandlers.push(swgAccessoryHandler);
+			}
+
+			const thermostatUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/thermostat`);
+			const thermostatAccessory = this.accessories.find(accessory => accessory.UUID === thermostatUuid);
+
+			if (thermostatAccessory) {
+				this.log.info(`${this.tag} Restored Thermostat Accessory: ${thermostatAccessory.displayName} (${controllerKey})`);
+				const thermostatAccessoryHandler = new ThermostatAccessoryHandler(this, thermostatAccessory, controller);
+				this.accessoryHandlers.push(thermostatAccessoryHandler);
+			} else {
+				const newThermostatAccessory = new this.api.platformAccessory('Thermostat', thermostatUuid);
+				this.log.info(`${this.tag} Created Thermostat Accessory: ${newThermostatAccessory.displayName} (${controllerKey})`);
+				newAccessories.push(newThermostatAccessory);
+				const thermostatAccessoryHandler = new ThermostatAccessoryHandler(this, newThermostatAccessory, controller);
+				this.accessoryHandlers.push(thermostatAccessoryHandler);
 			}
 
 			// Do the initial state updates

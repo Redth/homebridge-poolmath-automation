@@ -34,14 +34,32 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-MeadowPool-1');
 
 		// Thermostat
-		const thermostatServiceName = 'Pool Heater';
+		const thermostatServiceName = 'Thermostat';
 		this.thermostatService = this.accessory.getService(thermostatServiceName)
-			|| this.accessory.addService(this.platform.Service.Thermostat, thermostatServiceName, 'PoolThermostat');
+			|| this.accessory.addService(this.platform.Service.Thermostat, thermostatServiceName, 'ThermostatPool');
+
+		// Current Temperature
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
 			.onGet(() => this.getThermostatCurrent());
+
+		// Target Temperature
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetTemperature)
 			.onGet(() => this.getThermostatTarget())
 			.onSet(v => this.setThermostatTarget(v));
+
+		// Temperature Display Units (always Fahrenheit)
+		this.thermostatService.getCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits)
+			.onGet(() => this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT)
+			.onSet(_v => this.updateCharacteristics(false));
+
+		// Current Heating/Cooling State
+		this.thermostatService.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
+			.onGet(() => this.getThermostatHeatingCoolingState());
+
+		// Target Heating/Cooling State
+		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
+			.onGet(() => this.platform.Characteristic.TargetHeatingCoolingState.HEAT)
+			.onSet(_v => this.updateCharacteristics(false));
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
@@ -52,11 +70,17 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			this.platform.log.debug(`${this.tag} ${json}`);
 		}
 
-		const target = this.controller.status.ThermostatTarget;
-		const current = this.controller.status.Temp;
+		const targetTemperature = this.getThermostatTarget();
+		const currentTemperature = this.getThermostatCurrent();
+		const targetHeatingCoolingState = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
+		const currentHeatingCoolingState = this.getThermostatHeatingCoolingState();
 
-		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetTemperature, target);
-		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, current);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetTemperature, targetTemperature);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, currentTemperature);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState, currentHeatingCoolingState);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState, targetHeatingCoolingState);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits,
+			this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT);
 	}
 
 	setThermostatTarget (value: CharacteristicValue) {
@@ -77,5 +101,11 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	getThermostatCurrent () : Nullable<CharacteristicValue> {
 		return this.controller.status.Temp;
+	}
+
+	getThermostatHeatingCoolingState () : Nullable<CharacteristicValue> {
+		return this.controller.status.Heater <= 0
+			? this.platform.Characteristic.CurrentHeatingCoolingState.OFF
+			: this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
 	}
 }
