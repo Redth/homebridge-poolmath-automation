@@ -50,7 +50,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		// Temperature Display Units (always Fahrenheit)
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits)
 			.onGet(() => this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT)
-			.onSet(_v => this.updateCharacteristics(false));
+			.onSet(_ => this.updateCharacteristics(false));
 
 		// Current Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
@@ -59,7 +59,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		// Target Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
 			.onGet(() => this.platform.Characteristic.TargetHeatingCoolingState.HEAT)
-			.onSet(_v => this.updateCharacteristics(false));
+			.onSet(_ => this.updateCharacteristics(false));
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
