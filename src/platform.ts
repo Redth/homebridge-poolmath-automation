@@ -116,22 +116,22 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			// }
 
 
-			const temperatureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/temperature`);
-			const temperatureAccessory = this.accessories.find(accessory => accessory.UUID === temperatureUuid);
+			// const temperatureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/temperature`);
+			// const temperatureAccessory = this.accessories.find(accessory => accessory.UUID === temperatureUuid);
 
-			if (temperatureAccessory) {
-				this.log.info(`${this.tag} Restored Temperature Sensor Accessory: ${temperatureAccessory.displayName} (${controllerKey})`);
-				const temperatureSensorAccessoryHandler = new TemperatureSensorAccessoryHandler(this, temperatureAccessory, controller);
-				this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
-			} else {
-				const newTemperatureSensorAccessory = new this.api.platformAccessory('Water Temperature', temperatureUuid);
-				this.log.info(
-					`${this.tag} Created Temperature Sensor Accessory: ${newTemperatureSensorAccessory.displayName} (${controllerKey})`);
-				newAccessories.push(newTemperatureSensorAccessory);
-				const temperatureSensorAccessoryHandler =
-					new TemperatureSensorAccessoryHandler(this, newTemperatureSensorAccessory, controller);
-				this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
-			}
+			// if (temperatureAccessory) {
+			// 	this.log.info(`${this.tag} Restored Temperature Sensor Accessory: ${temperatureAccessory.displayName} (${controllerKey})`);
+			// 	const temperatureSensorAccessoryHandler = new TemperatureSensorAccessoryHandler(this, temperatureAccessory, controller);
+			// 	this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
+			// } else {
+			// 	const newTemperatureSensorAccessory = new this.api.platformAccessory('Water Temperature', temperatureUuid);
+			// 	this.log.info(
+			// 		`${this.tag} Created Temperature Sensor Accessory: ${newTemperatureSensorAccessory.displayName} (${controllerKey})`);
+			// 	newAccessories.push(newTemperatureSensorAccessory);
+			// 	const temperatureSensorAccessoryHandler =
+			// 		new TemperatureSensorAccessoryHandler(this, newTemperatureSensorAccessory, controller);
+			// 	this.accessoryHandlers.push(temperatureSensorAccessoryHandler);
+			// }
 
 
 			const filterPressureUuid = this.api.hap.uuid.generate(`${controller.address}:${controller.port}/filterpressuresensor`);
