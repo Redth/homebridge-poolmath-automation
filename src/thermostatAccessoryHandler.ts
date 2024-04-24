@@ -87,8 +87,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	setThermostatTarget (value: CharacteristicValue) {
 
-		const targetValue = <number>value.valueOf();
-
+		const targetValue = this.formatTemperature(<number>value.valueOf(), 10, 38);
 		// If turning on, then we just use the new heater state
 		// the controller will turn the others off and report back that status
 		// if turning 'off', then we assume heater state 0 is 'on'
@@ -98,16 +97,21 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getThermostatTarget () : Nullable<CharacteristicValue> {
-		return this.controller.status.ThermostatTarget;
+		return this.formatTemperature(this.controller.status.ThermostatTarget, 10, 38);
 	}
 
 	getThermostatCurrent () : Nullable<CharacteristicValue> {
-		return this.controller.status.Temp;
+		return this.formatTemperature(this.controller.status.Temp, -270, 100);
 	}
 
 	getThermostatHeatingCoolingState () : Nullable<CharacteristicValue> {
 		return this.controller.status.Heater <= 0
 			? this.platform.Characteristic.CurrentHeatingCoolingState.OFF
 			: this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
+	}
+
+	formatTemperature (value: number, min: number, max: number) : number {
+		const clamped = Math.min(min, Math.max(max, value));
+		return Math.round(clamped * 10) / 10;
 	}
 }
