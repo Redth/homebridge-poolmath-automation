@@ -17,6 +17,7 @@ import { MeadowPool } from './MeadowPool';
 export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	private thermostatService: Service;
+	private displayInCelsius = true;
 
 	readonly tag: string;
 
@@ -49,9 +50,8 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		// Temperature Display Units (always Fahrenheit)
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits)
-			.onGet(() => this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT)
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			.onSet(_ => this.updateCharacteristics(false));
+			.onGet(() => this.getDisplayUnit())
+			.onSet(v => this.setDisplayUnit(v));
 
 		// Current Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
@@ -73,15 +73,15 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		const targetTemperature = this.getThermostatTarget();
 		const currentTemperature = this.getThermostatCurrent();
-		const targetHeatingCoolingState = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
+		const targetHeatingCoolingState = this.getThermostatHeatingCoolingState();
 		const currentHeatingCoolingState = this.getThermostatHeatingCoolingState();
+		const displayUnit = this.getDisplayUnit();
 
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetTemperature, targetTemperature);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, currentTemperature);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState, currentHeatingCoolingState);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState, targetHeatingCoolingState);
-		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits,
-			this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT);
+		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits, displayUnit);
 	}
 
 	setThermostatTarget (value: CharacteristicValue) {
@@ -120,8 +120,26 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			: this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
 	}
 
+	getDisplayUnit () : Nullable<CharacteristicValue> {
+		if (this.displayInCelsius) {
+			return this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
+		}
+
+		return this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
+	}
+
+	setDisplayUnit (value: CharacteristicValue) {
+		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
+	}
+
 	formatTemperature (value: number, min: number, max: number) : number {
-		const clamped = Math.min(max, Math.max(min, value));
-		return Math.round(clamped * 10) / 10;
+		const temp = Math.min(max, Math.max(min, value));
+
+		// Convert to farenheit if needed
+		// if (!celsius) {
+		// 	temp = (temp * (9/5)) + 32;
+		// }
+
+		return Math.round(temp * 10) / 10;
 	}
 }
