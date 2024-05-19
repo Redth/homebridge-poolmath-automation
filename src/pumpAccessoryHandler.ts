@@ -39,7 +39,7 @@ export class PumpAccessoryHandler implements PoolMathAccessoryHandler {
 		// Pump 1
 		const pumpProgram1ServiceName = 'PumpMode1';
 		this.pumpProgram1Service = this.accessory.getService(pumpProgram1ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram1ServiceName, 'PumpLow');
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram1ServiceName, 'PumpMode1');
 		this.pumpProgram1Service.displayName = this.controller.pumpMode1Label;
 		this.pumpProgram1Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 1))
@@ -48,7 +48,7 @@ export class PumpAccessoryHandler implements PoolMathAccessoryHandler {
 		// Pump 2
 		const pumpProgram2ServiceName = 'PumpMode2';
 		this.pumpProgram2Service = this.accessory.getService(pumpProgram2ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram2ServiceName, 'PumpMedium');
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram2ServiceName, 'PumpMode2');
 		this.pumpProgram2Service.displayName = this.controller.pumpMode2Label;
 		this.pumpProgram2Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 2))
@@ -57,7 +57,7 @@ export class PumpAccessoryHandler implements PoolMathAccessoryHandler {
 		// Pump 3
 		const pumpProgram3ServiceName = 'PumpMode3';
 		this.pumpProgram3Service = this.accessory.getService(pumpProgram3ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram3ServiceName, 'PumpHigh');
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram3ServiceName, 'PumpMode3');
 		this.pumpProgram3Service.displayName = this.controller.pumpMode3Label;
 		this.pumpProgram3Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 3))
