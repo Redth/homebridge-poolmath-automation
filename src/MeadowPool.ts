@@ -9,7 +9,10 @@ export class MeadowPool extends EventEmitter {
 		public readonly log: Logger,
 		public readonly address: string,
 		public readonly port: number,
-		public readonly updateIntervalMs: number) {
+		public readonly updateIntervalMs: number,
+		public readonly pumpMode1Label: string,
+		public readonly pumpMode2Label: string,
+		public readonly pumpMode3Label: string) {
 
 		super();
 

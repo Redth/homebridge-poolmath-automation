@@ -13,7 +13,10 @@
             "displayName": { "type": "string", "title": "Display Name", "required": true, "placeholder": "Display Name" },
             "address": { "type": "string", "title": "MeadowPool Address", "required": true, "placeholder": "192.168.2.121" },
             "port": { "type": "number", "title": "MeadowPool Port", "required": false, "default": 80, "placeholder": "80" },
-            "updateIntervalMs": { "type": "number", "title": "Update Interval (ms)", "required": false, "default": 60000, "placeholder": "60000" }
+            "updateIntervalMs": { "type": "number", "title": "Update Interval (ms)", "required": false, "default": 60000, "placeholder": "60000" },
+            "pumpMode1Label": { "type": "string", "title": "Pump Mode 1 Label", "required": true, "placeholder": "Low" },
+            "pumpMode2Label": { "type": "string", "title": "Pump Mode 2 Label", "required": true, "placeholder": "Med" },
+            "pumpMode3Label": { "type": "string", "title": "Pump Mode 3 Label", "required": true, "placeholder": "High" }
           }
         }
       }
@@ -36,6 +39,15 @@
           },
           { "key": "controllers[].port", "flex": "2 2 50px",
             "notitle": true, "placeholder": "Port"
+          },
+          { "key": "controllers[].pumpMode1Label", "flex": "4 4 200px",
+            "notitle": true, "placeholder": "Low"
+          },
+          { "key": "controllers[].pumpMode2Label", "flex": "4 4 200px",
+            "notitle": true, "placeholder": "Med"
+          },
+          { "key": "controllers[].pumpMode3Label", "flex": "4 4 200px",
+            "notitle": true, "placeholder": "High"
           }
         ]
       } ]
@@ -43,7 +55,15 @@
   ],
   "data": {
     "controllers": [
-      { "displayName": "MeadowPool", "address": "192.168.2.121", "port": "80", "updateIntervalMs": 60000 }
+      { 
+        "displayName": "MeadowPool",
+        "address": "192.168.2.121",
+        "port": "80",
+        "updateIntervalMs": 60000,
+        "pumpMode1Label": "Low", 
+        "pumpMode2Label": "Med", 
+        "pumpMode3Label": "High"
+      }
     ]
   }
 }

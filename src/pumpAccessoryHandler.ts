@@ -37,28 +37,28 @@ export class PumpAccessoryHandler implements PoolMathAccessoryHandler {
 			.setCharacteristic(this.platform.Characteristic.SerialNumber, 'tfp-MeadowPool-1');
 
 		// Pump 1
-		const pumpProgram1ServiceName = 'High';
+		const pumpProgram1ServiceName = 'PumpMode1';
 		this.pumpProgram1Service = this.accessory.getService(pumpProgram1ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram1ServiceName, 'PumpHigh');
-		this.pumpProgram1Service.displayName = 'High';
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram1ServiceName, 'PumpLow');
+		this.pumpProgram1Service.displayName = this.controller.pumpMode1Label;
 		this.pumpProgram1Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 1))
 			.onGet(() => this.getPumpProgram(this.pumpProgram1Service, 1));
 
 		// Pump 2
-		const pumpProgram2ServiceName = 'Low';
+		const pumpProgram2ServiceName = 'PumpMode2';
 		this.pumpProgram2Service = this.accessory.getService(pumpProgram2ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram2ServiceName, 'PumpLow');
-		this.pumpProgram2Service.displayName = 'Low';
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram2ServiceName, 'PumpMedium');
+		this.pumpProgram2Service.displayName = this.controller.pumpMode2Label;
 		this.pumpProgram2Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 2))
 			.onGet(() => this.getPumpProgram(this.pumpProgram2Service, 2));
 
 		// Pump 3
-		const pumpProgram3ServiceName = 'Medium';
+		const pumpProgram3ServiceName = 'PumpMode3';
 		this.pumpProgram3Service = this.accessory.getService(pumpProgram3ServiceName)
-			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram3ServiceName, 'PumpMedium');
-		this.pumpProgram3Service.displayName = 'Medium';
+			|| this.accessory.addService(this.platform.Service.Fan, pumpProgram3ServiceName, 'PumpHigh');
+		this.pumpProgram3Service.displayName = this.controller.pumpMode3Label;
 		this.pumpProgram3Service.getCharacteristic(this.platform.Characteristic.On)
 			.onSet(v => this.setPumpProgram(v, 3))
 			.onGet(() => this.getPumpProgram(this.pumpProgram3Service, 3));
