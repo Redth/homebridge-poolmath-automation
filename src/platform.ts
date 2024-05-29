@@ -163,7 +163,7 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			controller.addListener('statusUpdated', (status: MeadowPoolStatus) => {
 				const json = JSON.stringify(status);
 				// eslint-disable-next-line max-len
-				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), HeaterOn=${status.HeaterOn}, Pump=${status.Pump}, TargetTemp=${status.ThermostatTarget}`);
+				this.log.info(`${this.tag} Status: Temp=${status.Temp}, Pressure=${status.Pressure}, SWG=${status.SwgPercent} - ${status.SwgCycleTimeOn} (on) / ${status.SwgCycleTime} (current) / ${status.SwgCycleDuration} (cycle), Heating=${status.Heating}, Pump=${status.Pump}, TargetTemp=${status.ThermostatTarget}`);
 				this.log.debug(`${this.tag} ${json}`);
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);

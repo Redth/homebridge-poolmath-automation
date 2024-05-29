@@ -18,7 +18,7 @@ export class MeadowPool extends EventEmitter {
 
 		this.baseUrl = 'http://' + this.address + ':' + this.port;
 
-		this.status = new MeadowPoolStatus(address, port, false, 0, 0, 0, 0, 0, 0, 0, 100, '');
+		this.status = new MeadowPoolStatus(address, port, false, 0, 0, 0, Date.now(), 0, 0, 0, 0, 100, '');
 
 		// Update from the endpoint regularly
 		setInterval(async () => {
@@ -117,22 +117,22 @@ export class MeadowPool extends EventEmitter {
 		}
 	}
 
-	readonly debouncedSetHeaterOnInternal = debounce(this.setHeaterOnInternal, 1200);
-	public async setHeaterOn(heaterOn: boolean) {
-		return await this.debouncedSetHeaterOnInternal(heaterOn);
-	}
+	// readonly debouncedSetHeaterOnInternal = debounce(this.setHeaterOnInternal, 1200);
+	// public async setHeaterOn(heaterOn: boolean) {
+	// 	return await this.debouncedSetHeaterOnInternal(heaterOn);
+	// }
 
-	async setHeaterOnInternal(heaterOn: boolean) {
-		const previousHeaterState = this.status.HeaterOn;
+	// async setHeaterOnInternal(heaterOn: boolean) {
+	// 	const previousHeaterState = this.status.HeaterOn;
 
-		this.status.HeaterOn = heaterOn;
-		try {
-			const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterOn);
-			this.setStatus(resp.data);
-		} catch (e) {
-			this.status.HeaterOn = previousHeaterState;
-			this.setStatus(this.status);
-			this.log.error('Failed setHeaterOn: ' + e);
-		}
-	}
+	// 	this.status.Heating = heaterOn;
+	// 	try {
+	// 		const resp = await axios.get<MeadowPoolStatus>(this.baseUrl + '/heater/' + heaterOn);
+	// 		this.setStatus(resp.data);
+	// 	} catch (e) {
+	// 		this.status.HeaterOn = previousHeaterState;
+	// 		this.setStatus(this.status);
+	// 		this.log.error('Failed setHeaterOn: ' + e);
+	// 	}
+	// }
 }

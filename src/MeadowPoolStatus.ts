@@ -5,11 +5,12 @@ export class MeadowPoolStatus {
 		public readonly address: string,
 		public readonly port: number,
 
-		public HeaterOn: boolean,
+		public Heating: boolean,
 		public Pump: number,
 		public SwgPercent: number,
 		public ThermostatTarget: number,
 
+		public readonly Timestamp: number,
 		public readonly Temp: number,
 		public readonly Pressure: number,
 		public readonly SwgCycleTimeOn: number,

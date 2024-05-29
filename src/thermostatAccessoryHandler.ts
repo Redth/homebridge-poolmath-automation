@@ -67,12 +67,10 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		const targetTemperature = this.getTargetTemperature() ?? 20;
 		const currentTemperature = this.getCurrentTemperature() ?? 0;
-		const targetHeatingCoolingState = this.getCurrentHeatingCoolingState()
-			?? this.platform.Characteristic.TargetHeatingCoolingState.OFF;
-		const currentHeatingCoolingState = this.getCurrentHeatingCoolingState()
-			?? this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
 		const displayUnit = this.getDisplayUnit()
 			?? this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
+		const targetHeatingCoolingState = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
+		const currentHeatingCoolingState = this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
 
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetTemperature, targetTemperature);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, currentTemperature);
@@ -92,15 +90,10 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			.then(() => this.updateCharacteristics(false));
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	setTargetHeatingCoolingState (value: CharacteristicValue) {
-
-		const targetStateValue = <number>value.valueOf();
-		const isOn = targetStateValue === this.platform.Characteristic.TargetHeatingCoolingState.HEAT
-			|| targetStateValue === this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
-
-		this.platform.log.info(`${this.tag} SET heaterOn=${isOn}`);
-		this.controller.setHeaterOn(isOn)
-			.then(() => this.updateCharacteristics(false));
+		this.platform.log.info(`${this.tag} Ignoring Target Heating State change, always HEAT`);
+		this.updateCharacteristics(false);
 	}
 
 	getTargetTemperature () : Nullable<CharacteristicValue> {
@@ -112,9 +105,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getCurrentHeatingCoolingState () : Nullable<CharacteristicValue> {
-		return this.controller.status.HeaterOn ?
-			this.platform.Characteristic.CurrentHeatingCoolingState.HEAT
-			: this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
+		return this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
 	}
 
 	getDisplayUnit () : Nullable<CharacteristicValue> {
