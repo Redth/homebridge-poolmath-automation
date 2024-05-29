@@ -49,11 +49,17 @@ export class FilterPressureAccessoryHandler implements PoolMathAccessoryHandler 
 			this.platform.log.debug(`${this.tag} ${json}`);
 		}
 
-		const pressure = this.controller.status.Pressure;
+		const pressure = this.formatPressure(this.controller.status.Pressure, 0, 100);
 		this.filterPressureService.updateCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity, pressure);
 	}
 
 	getFilterPressure () : Nullable<CharacteristicValue> {
-		return this.controller.status.Pressure;
+		return this.formatPressure(this.controller.status.Pressure, 0, 100);
+	}
+
+	formatPressure (value: number, min: number, max: number) : number {
+		const temp = Math.min(max, Math.max(min, value));
+
+		return Math.round(temp * 10) / 10;
 	}
 }
