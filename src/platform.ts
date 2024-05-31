@@ -7,6 +7,7 @@ import { MeadowPool } from './MeadowPool';
 import { MeadowPoolStatus } from './MeadowPoolStatus';
 import { FilterPressureAccessoryHandler } from './filterPressureAccessoryHandler';
 import { ThermostatAccessoryHandler } from './thermostatAccessoryHandler';
+import { InfluxDbLogger } from './influxDbLogger';
 
 export interface PoolMathAccessoryHandler {
 	updateCharacteristics(refresh: boolean | false) : Promise<void>;
@@ -26,6 +27,8 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 
 	readonly accessoryHandlers: PoolMathAccessoryHandler[] = [];
 	readonly controllers = new Map<string, MeadowPool>();
+
+	readonly influxDbLogger: InfluxDbLogger | undefined;
 
 	readonly tag: string;
 
@@ -47,6 +50,15 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 			// run the method to discover / register your devices as accessories
 			this.discoverDevices();
 		});
+
+		const influxDbUrl = this.config.influxDbConfig.influxDbUrl;
+		const influxDbToken = this.config.influxDbConfig.influxDbToken;
+		const influxDbOrg = this.config.influxDbConfig.influxDbOrg;
+		const influxDbBucket = this.config.influxDbConfig.influxDbBucket;
+
+		if (influxDbUrl && influxDbToken && influxDbOrg && influxDbBucket) {
+			this.influxDbLogger = new InfluxDbLogger(influxDbUrl, influxDbToken, influxDbOrg, influxDbBucket);
+		}
 	}
 
 	/**
@@ -168,6 +180,12 @@ export class PoolMathAutomationControllerPlatform implements DynamicPlatformPlug
 				this.accessoryHandlers.forEach(h => {
 					h.updateCharacteristics(false);
 				});
+
+				try {
+					this.influxDbLogger?.log(this.log, this.tag, controllerKey, status);
+				} catch (error) {
+					this.log.error(`${this.tag} Error logging to InfluxDB: ${error}`);
+				}
 			});
 
 			this.log.info(`${this.tag} Initialized.`);
