@@ -12,11 +12,8 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	private minCelsius = 10;
 	private maxCelsius = 38;
-	private minFahrenheit = 50;
-	private maxFahrenheit = 100;
 
 	private thermostatService: Service;
-	private displayInCelsius = true;
 
 	readonly tag: string;
 
@@ -47,15 +44,10 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 			.onGet(() => this.getTargetTemperature())
 			.onSet(v => this.setTargetTemperature(v))
 			.setProps({
-				minStep: this.displayInCelsius ? 0.5 : 1,
-				minValue: this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
-				maxValue: this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit,
+				minStep: 0.5,
+				minValue: this.minCelsius,
+				maxValue: this.maxCelsius,
 			});
-
-		// Temperature Display Units (always Fahrenheit)
-		this.thermostatService.getCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits)
-			.onGet(() => this.getDisplayUnit())
-			.onSet(v => this.setDisplayUnit(v));
 
 		// Current Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
@@ -64,7 +56,12 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		// Target Heating/Cooling State
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
 			.onGet(() => this.getCurrentHeatingCoolingState())
-			.onSet(v => this.setTargetHeatingCoolingState(v));
+			.onSet(v => this.setTargetHeatingCoolingState(v))
+			.setProps({
+				minValue: this.platform.Characteristic.TargetHeatingCoolingState.OFF,
+				maxValue: this.platform.Characteristic.TargetHeatingCoolingState.HEAT,
+				validValues: [0, 1],
+			});
 	}
 
 	public async updateCharacteristics(refresh: boolean | false) {
@@ -77,8 +74,6 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		const targetTemperature = this.getTargetTemperature() ?? 20;
 		const currentTemperature = this.getCurrentTemperature() ?? 0;
-		const displayUnit = this.getDisplayUnit()
-			?? this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
 		const targetHeatingCoolingState = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
 		const currentHeatingCoolingState = this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
 
@@ -86,20 +81,11 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, currentTemperature);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState, currentHeatingCoolingState);
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState, targetHeatingCoolingState);
-		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits, displayUnit);
 	}
 
 	setTargetTemperature (value: CharacteristicValue) {
 
-		let targetValue = this.clamp(<number>value.valueOf(),
-			this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
-			this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit);
-
-		// If display is set to farenheit, convert to celsius
-		if (!this.displayInCelsius) {
-			// Convert to Celsius if needed
-			targetValue = this.farenheitToCelsius(targetValue);
-		}
+		const targetValue = this.clamp(<number>value.valueOf(), this.minCelsius, this.maxCelsius);
 
 		// If turning on, then we just use the new heater state
 		// the controller will turn the others off and report back that status
@@ -116,65 +102,29 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getTargetTemperature () : Nullable<CharacteristicValue> {
-		return this.formatTemperature(this.controller.status.ThermostatTarget, this.displayInCelsius);
+		return this.formatTemperature(this.controller.status.ThermostatTarget);
 	}
 
 	getCurrentTemperature () : Nullable<CharacteristicValue> {
-		return this.formatTemperature(this.controller.status.Temp, this.displayInCelsius);
+		return this.formatTemperature(this.controller.status.Temp);
 	}
 
 	getCurrentHeatingCoolingState () : Nullable<CharacteristicValue> {
 		return this.platform.Characteristic.CurrentHeatingCoolingState.HEAT;
 	}
 
-	getDisplayUnit () : Nullable<CharacteristicValue> {
-		if (this.displayInCelsius) {
-			return this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
-		}
+	// getTargetHeatingCoolingState () : Nullable<CharacteristicValue> {
+	// 	return this.controller.status.Heating
+	// 		? this.platform.Characteristic.CurrentHeatingCoolingState.HEAT
+	// 		: this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
+	// }
 
-		return this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
-	}
-
-	setDisplayUnit (value: CharacteristicValue) {
-		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
-		this.platform.log.info(`${this.tag} SET displayUnit=${this.displayInCelsius ? 'C' : 'F'}`);
-
-
-		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetTemperature)
-			.setProps({
-				minStep: this.displayInCelsius ? 0.5 : 1,
-				minValue: this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
-				maxValue: this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit,
-			});
-		this.updateCharacteristics(false);
-	}
-
-	formatTemperature (value: number, celsius: boolean) : number {
-		let temp = value;
-
-		// Convert to Farenheit if needed
-		if (!celsius) {
-			temp = this.celsiusToFarenheit(temp);
-		}
-
-		const min = celsius ? this.minCelsius : this.minFahrenheit;
-		const max = celsius ? this.maxCelsius : this.maxFahrenheit;
-
-		// Clamp to min/max
-		temp = this.clamp(temp, min, max);
-
-		return Math.round(temp * 10) / 10;
+	formatTemperature (value: number) : Nullable<CharacteristicValue> {
+		return this.clamp(value, this.minCelsius, this.maxCelsius);
 	}
 
 	clamp (value: number, min: number, max: number) : number {
 		return Math.min(max, Math.max(min, value));
 	}
 
-	farenheitToCelsius(value: number) : number {
-		return (value - 32) * (5/9);
-	}
-
-	celsiusToFarenheit(value: number) : number {
-		return (value * (9/5)) + 32;
-	}
 }
