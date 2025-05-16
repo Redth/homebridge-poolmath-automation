@@ -10,6 +10,11 @@ import { MeadowPool } from './MeadowPool';
 
 export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
+	private minCelsius = 10;
+	private maxCelsius = 38;
+	private minFahrenheit = 50;
+	private maxFahrenheit = 100;
+
 	private thermostatService: Service;
 	private displayInCelsius = true;
 
@@ -79,17 +84,10 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits, displayUnit);
 	}
 
-	getMinTemperature(): number {
-		return 10; //return this.displayInCelsius ? 10 : 50;
-	}
-
-	getMaxTemperature(): number {
-		return 38; //return this.displayInCelsius ? 38 : 100;
-	}
-
 	setTargetTemperature (value: CharacteristicValue) {
 
-		const targetValue = this.formatTemperature(<number>value.valueOf(), this.getMinTemperature(), this.getMaxTemperature());
+		const targetValue = this.clamp(<number>value.valueOf(), this.minCelsius, this.maxCelsius);
+
 		// If turning on, then we just use the new heater state
 		// the controller will turn the others off and report back that status
 		// if turning 'off', then we assume heater state 0 is 'on'
@@ -105,11 +103,11 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getTargetTemperature () : Nullable<CharacteristicValue> {
-		return this.formatTemperature(this.controller.status.ThermostatTarget, this.getMinTemperature(), this.getMaxTemperature());
+		return this.formatTemperature(this.controller.status.ThermostatTarget, this.displayInCelsius);
 	}
 
 	getCurrentTemperature () : Nullable<CharacteristicValue> {
-		return this.formatTemperature(this.controller.status.Temp, -270, 100);
+		return this.formatTemperature(this.controller.status.Temp, this.displayInCelsius);
 	}
 
 	getCurrentHeatingCoolingState () : Nullable<CharacteristicValue> {
@@ -131,17 +129,24 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		this.updateCharacteristics(false);
 	}
 
-	formatTemperature (value: number, min: number, max: number) : number {
+	formatTemperature (value: number, celsius: boolean) : number {
 		let temp = value;
 
 		// Convert to Farenheit if needed
-		// if (!this.displayInCelsius) {
-		// 	temp = (temp * (9/5)) + 32;
-		// }
+		if (!celsius) {
+			temp = (temp * (9/5)) + 32;
+		}
+
+		const min = celsius ? this.minCelsius : this.minFahrenheit;
+		const max = celsius ? this.maxCelsius : this.maxFahrenheit;
 
 		// Clamp to min/max
-		temp = Math.min(max, Math.max(min, temp));
+		temp = this.clamp(temp, min, max);
 
 		return Math.round(temp * 10) / 10;
+	}
+
+	clamp (value: number, min: number, max: number) : number {
+		return Math.min(max, Math.max(min, value));
 	}
 }
