@@ -80,11 +80,11 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getMinTemperature(): number {
-		return this.displayInCelsius ? 10 : 50;
+		return 10; //return this.displayInCelsius ? 10 : 50;
 	}
 
 	getMaxTemperature(): number {
-		return this.displayInCelsius ? 38 : 100;
+		return 38; //return this.displayInCelsius ? 38 : 100;
 	}
 
 	setTargetTemperature (value: CharacteristicValue) {
@@ -125,9 +125,9 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	setDisplayUnit (value: CharacteristicValue) {
+		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
 		this.platform.log.info(`${this.tag} SET displayUnit=${this.displayInCelsius ? 'C' : 'F'}`);
 
-		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
 		this.updateCharacteristics(false);
 	}
 
@@ -135,9 +135,9 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		let temp = value;
 
 		// Convert to Farenheit if needed
-		if (!this.displayInCelsius) {
-			temp = (temp * (9/5)) + 32;
-		}
+		// if (!this.displayInCelsius) {
+		// 	temp = (temp * (9/5)) + 32;
+		// }
 
 		// Clamp to min/max
 		temp = Math.min(max, Math.max(min, temp));
