@@ -117,16 +117,18 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	setDisplayUnit (value: CharacteristicValue) {
+		this.platform.log.info(`${this.tag} SET displayUnit=${this.displayInCelsius ? 'C' : 'F'}`);
+
 		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
+		this.updateCharacteristics(false);
 	}
 
 	formatTemperature (value: number, min: number, max: number) : number {
-		const temp = Math.min(max, Math.max(min, value));
+		let temp = Math.min(max, Math.max(min, value));
 
-		// Convert to farenheit if needed
-		// if (!celsius) {
-		// 	temp = (temp * (9/5)) + 32;
-		// }
+		if (!this.displayInCelsius) {
+			temp = (temp * (9/5)) + 32;
+		}
 
 		return Math.round(temp * 10) / 10;
 	}
