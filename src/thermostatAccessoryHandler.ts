@@ -79,9 +79,17 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		this.thermostatService.updateCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits, displayUnit);
 	}
 
+	getMinTemperature(): number {
+		return this.displayInCelsius ? 10 : 50;
+	}
+
+	getMaxTemperature(): number {
+		return this.displayInCelsius ? 38 : 100;
+	}
+
 	setTargetTemperature (value: CharacteristicValue) {
 
-		const targetValue = this.formatTemperature(<number>value.valueOf(), 10, 38);
+		const targetValue = this.formatTemperature(<number>value.valueOf(), this.getMinTemperature(), this.getMaxTemperature());
 		// If turning on, then we just use the new heater state
 		// the controller will turn the others off and report back that status
 		// if turning 'off', then we assume heater state 0 is 'on'
@@ -97,7 +105,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	getTargetTemperature () : Nullable<CharacteristicValue> {
-		return this.formatTemperature(this.controller.status.ThermostatTarget, 10, 38);
+		return this.formatTemperature(this.controller.status.ThermostatTarget, this.getMinTemperature(), this.getMaxTemperature());
 	}
 
 	getCurrentTemperature () : Nullable<CharacteristicValue> {
@@ -124,11 +132,15 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 	}
 
 	formatTemperature (value: number, min: number, max: number) : number {
-		let temp = Math.min(max, Math.max(min, value));
+		let temp = value;
 
+		// Convert to Farenheit if needed
 		if (!this.displayInCelsius) {
 			temp = (temp * (9/5)) + 32;
 		}
+
+		// Clamp to min/max
+		temp = Math.min(max, Math.max(min, temp));
 
 		return Math.round(temp * 10) / 10;
 	}
