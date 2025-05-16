@@ -45,7 +45,12 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		// Target Temperature
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetTemperature)
 			.onGet(() => this.getTargetTemperature())
-			.onSet(v => this.setTargetTemperature(v));
+			.onSet(v => this.setTargetTemperature(v))
+			.setProps({
+				minStep: this.displayInCelsius ? 0.5 : 1,
+				minValue: this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
+				maxValue: this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit,
+			});
 
 		// Temperature Display Units (always Fahrenheit)
 		this.thermostatService.getCharacteristic(this.platform.Characteristic.TemperatureDisplayUnits)
@@ -86,7 +91,15 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	setTargetTemperature (value: CharacteristicValue) {
 
-		const targetValue = this.clamp(<number>value.valueOf(), this.minCelsius, this.maxCelsius);
+		let targetValue = this.clamp(<number>value.valueOf(),
+			this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
+			this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit);
+
+		// If display is set to farenheit, convert to celsius
+		if (!this.displayInCelsius) {
+			// Convert to Celsius if needed
+			targetValue = this.farenheitToCelsius(targetValue);
+		}
 
 		// If turning on, then we just use the new heater state
 		// the controller will turn the others off and report back that status
@@ -126,6 +139,13 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 		this.displayInCelsius = value === this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS;
 		this.platform.log.info(`${this.tag} SET displayUnit=${this.displayInCelsius ? 'C' : 'F'}`);
 
+
+		this.thermostatService.getCharacteristic(this.platform.Characteristic.TargetTemperature)
+			.setProps({
+				minStep: this.displayInCelsius ? 0.5 : 1,
+				minValue: this.displayInCelsius ? this.minCelsius : this.minFahrenheit,
+				maxValue: this.displayInCelsius ? this.maxCelsius : this.maxFahrenheit,
+			});
 		this.updateCharacteristics(false);
 	}
 
@@ -134,7 +154,7 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 		// Convert to Farenheit if needed
 		if (!celsius) {
-			temp = (temp * (9/5)) + 32;
+			temp = this.celsiusToFarenheit(temp);
 		}
 
 		const min = celsius ? this.minCelsius : this.minFahrenheit;
@@ -148,5 +168,13 @@ export class ThermostatAccessoryHandler implements PoolMathAccessoryHandler {
 
 	clamp (value: number, min: number, max: number) : number {
 		return Math.min(max, Math.max(min, value));
+	}
+
+	farenheitToCelsius(value: number) : number {
+		return (value - 32) * (5/9);
+	}
+
+	celsiusToFarenheit(value: number) : number {
+		return (value * (9/5)) + 32;
 	}
 }
